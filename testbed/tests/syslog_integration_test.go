@@ -182,7 +182,7 @@ service:
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	require.Equal(t, len(backend.ReceivedLogs), 1)
+	require.Len(t, backend.ReceivedLogs, 1)
 	require.Equal(t, backend.ReceivedLogs[0].ResourceLogs().Len(), 1)
 	require.Equal(t, backend.ReceivedLogs[0].ResourceLogs().At(0).ScopeLogs().Len(), 1)
 	require.Equal(t, backend.ReceivedLogs[0].ResourceLogs().At(0).ScopeLogs().At(0).LogRecords().Len(), len(expectedData))
