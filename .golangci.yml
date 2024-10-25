@@ -137,7 +137,6 @@ linters-settings:
       - float-compare
       - require-error
       - suite-subtest-run
-      - encoded-compare # has false positives that cannot be fixed with testifylint-fix
     enable-all: true
 
 linters:
