@@ -1597,9 +1597,7 @@ func TestGCInterval(t *testing.T) {
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
 			got := gcInterval(tc.input)
-			if got != tc.want {
-				t.Errorf("gcInterval(%+v) = %v, want %v", tc.input, got, tc.want)
-			}
+			assert.Equal(t, tc.want, got, "gcInterval(%+v) = %v, want %v", tc.input, got, tc.want)
 		})
 	}
 }

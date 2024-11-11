@@ -290,9 +290,8 @@ func TestTimeout(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			to := timeout(tc.deadline, tc.timeout)
-			if to < (tc.want-10*time.Millisecond) || to > tc.want {
-				t.Fatalf("wanted time within 10 milliseconds: %s, got: %s", time.Second, to)
-			}
+			require.LessOrEqual(t, to, tc.want, "wanted time within 10 milliseconds: %s, got: %s", time.Second, to)
+			require.GreaterOrEqual(t, to, (tc.want - 10*time.Millisecond), "wanted time within 10 milliseconds: %s, got: %s", time.Second, to)
 		})
 	}
 }

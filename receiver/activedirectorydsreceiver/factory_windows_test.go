@@ -24,7 +24,6 @@ func TestCreateMetrics(t *testing.T) {
 		)
 
 		require.Nil(t, recv)
-		require.Error(t, err)
 		require.ErrorIs(t, err, errConfigNotActiveDirectory)
 	})
 

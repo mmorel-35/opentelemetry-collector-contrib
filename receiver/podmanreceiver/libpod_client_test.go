@@ -7,7 +7,6 @@ package podmanreceiver
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net"
 	"net/http"
@@ -18,21 +17,18 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
 func tmpSock(t *testing.T) (net.Listener, string) {
 	f, err := os.CreateTemp(os.TempDir(), "testsock")
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 	addr := f.Name()
 	os.Remove(addr)
 
 	listener, err := net.Listen("unix", addr)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	return listener, addr
 }
@@ -238,10 +234,7 @@ loop:
 	for {
 		select {
 		case err := <-errs:
-			if err != nil && !errors.Is(err, io.EOF) {
-				t.Fatal(err)
-			}
-			assert.Equal(t, io.EOF, err)
+			assert.ErrorIs(t, err, io.EOF)
 			break loop
 		case e := <-events:
 			actualEvents = append(actualEvents, e)

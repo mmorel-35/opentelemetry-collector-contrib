@@ -540,7 +540,7 @@ func TestGetPoolMembers(t *testing.T) {
 				require.NoError(t, err)
 
 				poolMembers, err := tc.GetPoolMembers(context.Background(), pools)
-				require.EqualError(t, err, errors.New("non 200 code returned 401").Error())
+				require.EqualError(t, err, "non 200 code returned 401")
 				require.Equal(t, expected, poolMembers)
 			},
 		},
@@ -567,7 +567,7 @@ func TestGetPoolMembers(t *testing.T) {
 				expected := models.PoolMembers{}
 
 				poolMembers, err := tc.GetPoolMembers(context.Background(), pools)
-				require.EqualError(t, err, errors.New("non 200 code returned 401").Error())
+				require.EqualError(t, err, "non 200 code returned 401")
 				require.Equal(t, &expected, poolMembers)
 			},
 		},

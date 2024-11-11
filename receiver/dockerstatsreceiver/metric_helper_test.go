@@ -107,15 +107,11 @@ func Test_parseCPUSet(t *testing.T) {
 		result, err := parseCPUSet(test.input)
 
 		if err != nil && test.err != nil {
-			if err.Error() != test.err.Error() {
-				t.Errorf("parseCPUSet(%s) returned error %v, expected %v", test.input, err, test.err)
-			}
+			assert.EqualError(t, err, test.err.Error(), "parseCPUSet(%s) returned error %v, expected %v", test.input, err, test.err)
 		} else if !errors.Is(err, test.err) {
 			t.Errorf("parseCPUSet(%s) returned error %v, expected %v", test.input, err, test.err)
 		}
 
-		if result != test.expected {
-			t.Errorf("parseCPUSet(%s) returned %f, expected %f", test.input, result, test.expected)
-		}
+		assert.Equal(t, test.expected, result, "parseCPUSet(%s) returned %f, expected %f", test.input, result, test.expected)
 	}
 }

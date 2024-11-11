@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -154,9 +153,7 @@ func TestExportMultiplexing(t *testing.T) {
 	// 1. Initiating Node
 	// 2. Node 1
 	// 3. Node 2
-	if g, w := len(resultsMapping), 3; g != w {
-		t.Errorf("Got %d keys in the results map; Wanted exactly %d\n\nResultsMapping: %+v\n", g, w, resultsMapping)
-	}
+	assert.Len(t, resultsMapping, 3, "Results mapping")
 
 	// Want metric counts
 	wantMetricCounts := map[string]int{
@@ -166,9 +163,7 @@ func TestExportMultiplexing(t *testing.T) {
 	}
 	for key, wantMetricCounts := range wantMetricCounts {
 		gotMetricCounts := len(resultsMapping[key])
-		if gotMetricCounts != wantMetricCounts {
-			t.Errorf("Key=%q gotMetricCounts %d wantMetricCounts %d", key, gotMetricCounts, wantMetricCounts)
-		}
+		assert.Equal(t, wantMetricCounts, gotMetricCounts, "Key=%q gotMetricCounts %d wantMetricCounts %d", key, gotMetricCounts, wantMetricCounts)
 	}
 
 	// Now ensure that the exported metrics match up exactly with
@@ -182,9 +177,7 @@ func TestExportMultiplexing(t *testing.T) {
 
 	gotBlob, _ := json.Marshal(resultsMapping)
 	wantBlob, _ := json.Marshal(wantContents)
-	if !bytes.Equal(gotBlob, wantBlob) {
-		t.Errorf("Unequal serialization results\nGot:\n\t%s\nWant:\n\t%s\n", gotBlob, wantBlob)
-	}
+	assert.True(t, bytes.Equal(gotBlob, wantBlob), "Unequal serialization results\nGot:\n\t%s\nWant:\n\t%s\n", gotBlob, wantBlob)
 }
 
 // The first message without a Node MUST be rejected and teardown the connection.
@@ -232,18 +225,13 @@ func TestExportProtocolViolations_nodelessFirstMessage(t *testing.T) {
 	// to send the proper/corrective data should be rejected.
 	for i := 0; i < 10; i++ {
 		recv, err := metricsClient.Recv()
-		if recv != nil {
-			t.Errorf("Iteration #%d: Unexpectedly got back a response: %#v", i, recv)
-		}
+		assert.Nil(t, recv, "Iteration #%d: Unexpectedly got back a response: %#v", i, recv)
 		if err == nil {
 			t.Errorf("Iteration #%d: Unexpectedly got back a nil error", i)
 			continue
 		}
 
-		wantSubStr := "protocol violation: Export's first message must have a Node"
-		if g := err.Error(); !strings.Contains(g, wantSubStr) {
-			t.Errorf("Iteration #%d: Got error:\n\t%s\nWant substring:\n\t%s\n", i, g, wantSubStr)
-		}
+		assert.ErrorContainsf(t, err, "protocol violation: Export's first message must have a Node", "Iteration #%d", i)
 
 		// The connection should be invalid at this point and
 		// no attempt to send corrections should succeed.
@@ -303,9 +291,7 @@ func TestExportProtocolConformation_metricsInFirstMessage(t *testing.T) {
 		}
 	}
 
-	if g, w := len(resultsMapping), 1; g != w {
-		t.Errorf("Results mapping: Got len(keys) %d Want %d", g, w)
-	}
+	assert.Len(t, resultsMapping, 1, "Results mapping")
 
 	// Check for the keys
 	wantLengths := map[string]int{
@@ -313,9 +299,7 @@ func TestExportProtocolConformation_metricsInFirstMessage(t *testing.T) {
 	}
 	for key, wantLength := range wantLengths {
 		gotLength := len(resultsMapping[key])
-		if gotLength != wantLength {
-			t.Errorf("Exported metrics:: Key: %s\nGot length %d\nWant length %d", key, gotLength, wantLength)
-		}
+		assert.Equal(t, wantLength, gotLength, "Exported metrics:: Key: %s\nGot length %d\nWant length %d", key, gotLength, wantLength)
 	}
 
 	// And finally ensure that the protos' serializations are equivalent to the expected
@@ -325,9 +309,7 @@ func TestExportProtocolConformation_metricsInFirstMessage(t *testing.T) {
 
 	gotBlob, _ := json.Marshal(resultsMapping)
 	wantBlob, _ := json.Marshal(wantContents)
-	if !bytes.Equal(gotBlob, wantBlob) {
-		t.Errorf("Unequal serialization results\nGot:\n\t%s\nWant:\n\t%s\n", gotBlob, wantBlob)
-	}
+	assert.True(t, bytes.Equal(gotBlob, wantBlob), "Unequal serialization results\nGot:\n\t%s\nWant:\n\t%s\n", gotBlob, wantBlob)
 }
 
 // Helper functions from here on below

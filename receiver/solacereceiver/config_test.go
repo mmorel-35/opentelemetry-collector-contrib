@@ -83,15 +83,13 @@ func TestLoadConfig(t *testing.T) {
 func TestConfigValidateMissingAuth(t *testing.T) {
 	cfg := createDefaultConfig().(*Config)
 	cfg.Queue = "someQueue"
-	err := component.ValidateConfig(cfg)
-	assert.Equal(t, errMissingAuthDetails, err)
+	assert.Equal(t, component.ValidateConfig(cfg), errMissingAuthDetails)
 }
 
 func TestConfigValidateMissingQueue(t *testing.T) {
 	cfg := createDefaultConfig().(*Config)
 	cfg.Auth.PlainText = &SaslPlainTextConfig{"Username", "Password"}
-	err := component.ValidateConfig(cfg)
-	assert.Equal(t, errMissingQueueName, err)
+	assert.Equal(t, component.ValidateConfig(cfg), errMissingQueueName)
 }
 
 func TestConfigValidateMissingFlowControl(t *testing.T) {
@@ -136,8 +134,7 @@ func TestConfigValidateSuccess(t *testing.T) {
 			cfg := createDefaultConfig().(*Config)
 			cfg.Queue = "someQueue"
 			configure(cfg)
-			err := component.ValidateConfig(cfg)
-			assert.NoError(t, err)
+			assert.NoError(t, component.ValidateConfig(cfg))
 		})
 	}
 }

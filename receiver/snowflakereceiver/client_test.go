@@ -13,6 +13,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 )
@@ -34,9 +35,7 @@ func TestDefaultClientCreation(t *testing.T) {
 // test query wrapper
 func TestClientReadDB(t *testing.T) {
 	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal("an error was not expected when opening mock db", err)
-	}
+	require.NoError(t, err, "an error was not expected when opening mock db")
 	defer db.Close()
 
 	q := "SELECT * FROM mocktable"
@@ -51,13 +50,9 @@ func TestClientReadDB(t *testing.T) {
 	ctx := context.Background()
 
 	_, err = client.readDB(ctx, q)
-	if err != nil {
-		t.Errorf("Error during readDB: %s", err)
-	}
+	assert.NoError(t, err, "Error during readDB")
 
-	if err = mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %s", err)
-	}
+	assert.NoError(t, mock.ExpectationsWereMet(), "Unfulfilled expectations")
 }
 
 func TestMetricQueries(t *testing.T) {
@@ -260,9 +255,7 @@ func TestMetricQueries(t *testing.T) {
 		test := tests[i]
 		t.Run(test.desc, func(t *testing.T) {
 			db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-			if err != nil {
-				t.Fatal("an error was not expected when opening mock db", err)
-			}
+			require.NoError(t, err, "an error was not expected when opening mock db")
 
 			rows := mock.NewRows(test.columns).AddRow(test.params...)
 			mock.ExpectQuery(test.query).WillReturnRows(rows)

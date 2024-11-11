@@ -71,12 +71,11 @@ func TestValidate(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			cfg := NewFactory().CreateDefaultConfig().(*Config)
 			cfg.Endpoint = tc.endpoint
-			err := component.ValidateConfig(cfg)
 			if tc.errExpected {
-				require.EqualError(t, err, tc.errText)
-				return
+				require.EqualError(t, component.ValidateConfig(cfg), tc.errText)
+			} else {
+				require.NoError(t, component.ValidateConfig(cfg))
 			}
-			require.NoError(t, err)
 		})
 	}
 }

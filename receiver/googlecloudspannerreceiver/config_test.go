@@ -185,12 +185,10 @@ func TestValidateConfig(t *testing.T) {
 				Projects:               testCase.projects,
 			}
 
-			err := component.ValidateConfig(cfg)
-
 			if testCase.requireError {
-				require.Error(t, err)
+				require.Error(t, component.ValidateConfig(cfg))
 			} else {
-				require.NoError(t, err)
+				require.NoError(t, component.ValidateConfig(cfg))
 			}
 		})
 	}

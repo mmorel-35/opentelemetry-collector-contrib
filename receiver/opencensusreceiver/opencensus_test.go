@@ -213,12 +213,10 @@ func verifyCorsResp(t *testing.T, url string, origin string, wantStatus int, wan
 	client := &http.Client{}
 	defer client.CloseIdleConnections()
 	resp, err := client.Do(req)
-	require.NoError(t, err, "Error sending OPTIONS to grpc-gateway server: %v", err)
+	require.NoError(t, err, "Error sending OPTIONS to grpc-gateway server")
 
 	err = resp.Body.Close()
-	if err != nil {
-		t.Errorf("Error closing OPTIONS response body, %v", err)
-	}
+	assert.NoError(t, err, "Error closing OPTIONS response body")
 
 	assert.Equal(t, wantStatus, resp.StatusCode)
 
@@ -565,9 +563,7 @@ func TestOCReceiverTrace_HandleNextConsumerResponse(t *testing.T) {
 				t.Cleanup(func() { require.NoError(t, ocr.Shutdown(context.Background())) })
 
 				cc, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-				if err != nil {
-					t.Errorf("grpc.NewClient: %v", err)
-				}
+				assert.NoError(t, err, "grpc.NewClient")
 				defer cc.Close()
 
 				for _, ingestionState := range tt.ingestionStates {
@@ -723,9 +719,7 @@ func TestOCReceiverMetrics_HandleNextConsumerResponse(t *testing.T) {
 				t.Cleanup(func() { require.NoError(t, ocr.Shutdown(context.Background())) })
 
 				cc, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-				if err != nil {
-					t.Errorf("grpc.NewClient: %v", err)
-				}
+				assert.NoError(t, err, "grpc.NewClient")
 				defer cc.Close()
 
 				for _, ingestionState := range tt.ingestionStates {

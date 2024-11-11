@@ -111,9 +111,7 @@ func TestGRPCReception(t *testing.T) {
 	// skywalking agent client send trace data to otel/skywalkingreceiver
 	client := agent.NewTraceSegmentReportServiceClient(conn)
 	commands, err := client.CollectInSync(context.Background(), segmentCollection)
-	if err != nil {
-		t.Fatalf("cannot send data in sync mode: %v", err)
-	}
+	require.NoError(t, err, "cannot send data in sync mode")
 	// verify
 	assert.NoError(t, err, "send skywalking segment successful.")
 	assert.NotNil(t, commands)
@@ -142,9 +140,7 @@ func TestHttpReception(t *testing.T) {
 	client := &http.Client{}
 	response, err := client.Do(req)
 	// http client send trace data to otel/skywalkingreceiver
-	if err != nil {
-		t.Fatalf("cannot send data in sync mode: %v", err)
-	}
+	require.NoError(t, err, "cannot send data in sync mode")
 	// verify
 	assert.NoError(t, err, "send skywalking segment successful.")
 	assert.NotNil(t, response)

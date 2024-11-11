@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/consumer/consumertest"
@@ -135,9 +136,8 @@ func TestShouldProcessCluster(t *testing.T) {
 				tt.projectCfg.populateIncludesAndExcludes()
 			}
 
-			if got := shouldProcessCluster(tt.projectCfg, tt.clusterName); got != tt.want {
-				t.Errorf("shouldProcessCluster() = %v, want %v", got, tt.want)
-			}
+			got := shouldProcessCluster(tt.projectCfg, tt.clusterName)
+			assert.Equal(t, tt.want, got, "shouldProcessCluster() = %v, want %v", got, tt.want)
 		})
 	}
 }

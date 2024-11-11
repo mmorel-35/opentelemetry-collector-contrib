@@ -138,7 +138,5 @@ func TestLoadConfig(t *testing.T) {
 	assert.NoError(t, component.ValidateConfig(cfg))
 
 	diff := cmp.Diff(expected, cfg, cmpopts.IgnoreUnexported(metadata.MetricConfig{}), cmpopts.IgnoreUnexported(metadata.ResourceAttributeConfig{}))
-	if diff != "" {
-		t.Errorf("config mismatch (-expected / +actual)\n%s", diff)
-	}
+	assert.Empty(t, diff, "config mismatch (-expected / +actual)\n%s", diff)
 }

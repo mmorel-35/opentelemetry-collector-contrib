@@ -146,16 +146,12 @@ func TestCollectDServer(t *testing.T) {
 
 	logger := zap.NewNop()
 	cdr, err := newCollectdReceiver(logger, config, defaultAttrsPrefix, sink, receivertest.NewNopSettings())
-	if err != nil {
-		t.Fatalf("Failed to create receiver: %v", err)
-	}
+	require.NoError(t, err, "Failed to create receiver")
 
 	require.NoError(t, cdr.Start(context.Background(), componenttest.NewNopHost()))
 	t.Cleanup(func() {
 		err := cdr.Shutdown(context.Background())
-		if err != nil {
-			t.Fatalf("Error stopping metrics reception: %v", err)
-		}
+		require.NoError(t, err, "Error stopping metrics reception")
 	})
 
 	time.Sleep(time.Second)

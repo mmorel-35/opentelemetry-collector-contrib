@@ -48,16 +48,14 @@ func TestLoadConfig(t *testing.T) {
 func TestMissingConnection(t *testing.T) {
 	factory := NewFactory()
 	cfg := factory.CreateDefaultConfig()
-	err := component.ValidateConfig(cfg)
-	assert.EqualError(t, err, "missing connection")
+	assert.EqualError(t, component.ValidateConfig(cfg), "missing connection")
 }
 
 func TestInvalidConnectionString(t *testing.T) {
 	factory := NewFactory()
 	cfg := factory.CreateDefaultConfig()
 	cfg.(*Config).Connection = "foo"
-	err := component.ValidateConfig(cfg)
-	assert.EqualError(t, err, "failed parsing connection string due to unmatched key value separated by '='")
+	assert.EqualError(t, component.ValidateConfig(cfg), "failed parsing connection string due to unmatched key value separated by '='")
 }
 
 func TestIsValidFormat(t *testing.T) {
@@ -72,6 +70,5 @@ func TestInvalidFormat(t *testing.T) {
 	cfg := factory.CreateDefaultConfig()
 	cfg.(*Config).Connection = "Endpoint=sb://namespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=superSecret1234=;EntityPath=hubName"
 	cfg.(*Config).Format = "invalid"
-	err := component.ValidateConfig(cfg)
-	assert.ErrorContains(t, err, "invalid format; must be one of")
+	assert.ErrorContains(t, component.ValidateConfig(cfg), "invalid format; must be one of")
 }

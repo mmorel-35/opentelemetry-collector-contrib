@@ -20,9 +20,7 @@ import (
 // check that OTel Collector patterns are implemented
 func TestCheckConfig(t *testing.T) {
 	t.Parallel()
-	if err := componenttest.CheckConfigStruct(&Config{}); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, componenttest.CheckConfigStruct(&Config{}))
 }
 
 // test the validate function for config

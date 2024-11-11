@@ -18,6 +18,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/receiver/receivertest"
@@ -83,9 +84,7 @@ func TestAzureScraperStart(t *testing.T) {
 					armMonitorMetricsClientFunc:     armMonitorMetricsClientFuncMock,
 				}
 
-				if err := s.start(context.Background(), componenttest.NewNopHost()); err != nil {
-					t.Errorf("azureScraper.start() error = %v", err)
-				}
+				assert.NoError(t, s.start(context.Background(), componenttest.NewNopHost()), "azureScraper.start()")
 				require.NotNil(t, s.cred)
 				require.IsType(t, &azidentity.ClientSecretCredential{}, s.cred)
 			},
@@ -111,9 +110,7 @@ func TestAzureScraperStart(t *testing.T) {
 					armMonitorMetricsClientFunc:     armMonitorMetricsClientFuncMock,
 				}
 
-				if err := s.start(context.Background(), componenttest.NewNopHost()); err != nil {
-					t.Errorf("azureScraper.start() error = %v", err)
-				}
+				assert.NoError(t, s.start(context.Background(), componenttest.NewNopHost()), "azureScraper.start()")
 				require.NotNil(t, s.cred)
 				require.IsType(t, &azidentity.ClientSecretCredential{}, s.cred)
 			},
@@ -139,9 +136,7 @@ func TestAzureScraperStart(t *testing.T) {
 					armMonitorMetricsClientFunc:     armMonitorMetricsClientFuncMock,
 				}
 
-				if err := s.start(context.Background(), componenttest.NewNopHost()); err != nil {
-					t.Errorf("azureScraper.start() error = %v", err)
-				}
+				assert.NoError(t, s.start(context.Background(), componenttest.NewNopHost()), "azureScraper.start()")
 				require.NotNil(t, s.cred)
 				require.IsType(t, &azidentity.WorkloadIdentityCredential{}, s.cred)
 			},
@@ -167,9 +162,7 @@ func TestAzureScraperStart(t *testing.T) {
 					armMonitorMetricsClientFunc:     armMonitorMetricsClientFuncMock,
 				}
 
-				if err := s.start(context.Background(), componenttest.NewNopHost()); err != nil {
-					t.Errorf("azureScraper.start() error = %v", err)
-				}
+				assert.NoError(t, s.start(context.Background(), componenttest.NewNopHost()), "azureScraper.start()")
 				require.NotNil(t, s.cred)
 				require.IsType(t, &azidentity.ManagedIdentityCredential{}, s.cred)
 			},
@@ -195,9 +188,7 @@ func TestAzureScraperStart(t *testing.T) {
 					armMonitorMetricsClientFunc:     armMonitorMetricsClientFuncMock,
 				}
 
-				if err := s.start(context.Background(), componenttest.NewNopHost()); err != nil {
-					t.Errorf("azureScraper.start() error = %v", err)
-				}
+				assert.NoError(t, s.start(context.Background(), componenttest.NewNopHost()), "azureScraper.start()")
 				require.NotNil(t, s.cred)
 				require.IsType(t, &azidentity.DefaultAzureCredential{}, s.cred)
 			},
@@ -323,8 +314,8 @@ func TestAzureScraperScrape(t *testing.T) {
 			s.resources = map[string]*azureResource{}
 
 			metrics, err := s.scrape(tt.args.ctx)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("azureScraper.scrape() error = %v, wantErr %v", err, tt.wantErr)
+			if tt.wantErr {
+				assert.NoError(t, err, "azureScraper.scrape() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -777,9 +768,8 @@ func TestAzureScraperClientOptions(t *testing.T) {
 			s := &azureScraper{
 				cfg: tt.fields.cfg,
 			}
-			if got := s.getArmClientOptions(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getArmClientOptions() = %v, want %v", got, tt.want)
-			}
+			got := s.getArmClientOptions()
+			assert.True(t, reflect.DeepEqual(got, tt.want), "getArmClientOptions() = %v, want %v", got, tt.want)
 		})
 	}
 }

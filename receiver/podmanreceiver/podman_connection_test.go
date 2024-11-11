@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
@@ -29,9 +30,7 @@ func TestNewPodmanConnectionUnix(t *testing.T) {
 
 	socketPath := filepath.Join(tmpDir, "test.sock")
 	l, err := net.Listen("unix", socketPath)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 	defer l.Close()
 
 	logger := zap.NewNop()

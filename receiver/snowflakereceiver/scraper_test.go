@@ -25,15 +25,10 @@ func TestScraper(t *testing.T) {
 	cfg.Username = "uname"
 	cfg.Password = "pwd"
 	cfg.Warehouse = "warehouse"
-	err := component.ValidateConfig(cfg)
-	if err != nil {
-		t.Fatal("an error ocured when validating config", err)
-	}
+	require.NoError(t, component.ValidateConfig(cfg), "an error ocured when validating config")
 
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	if err != nil {
-		t.Fatal("an error ocured when opening mock db", err)
-	}
+	require.NoError(t, err, "an error ocured when opening mock db")
 	defer db.Close()
 
 	mockDB := mockDB{mock}

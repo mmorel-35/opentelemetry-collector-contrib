@@ -90,11 +90,10 @@ func TestValidate(t *testing.T) {
 				Hosts:            hosts,
 				ControllerConfig: scraperhelper.NewDefaultControllerConfig(),
 			}
-			err := component.ValidateConfig(cfg)
 			if tc.expected == nil {
-				require.NoError(t, err)
+				require.NoError(t, component.ValidateConfig(cfg))
 			} else {
-				require.ErrorContains(t, err, tc.expected.Error())
+				require.ErrorContains(t, component.ValidateConfig(cfg), tc.expected.Error())
 			}
 		})
 	}
@@ -142,11 +141,10 @@ func TestBadTLSConfigs(t *testing.T) {
 				ControllerConfig: scraperhelper.NewDefaultControllerConfig(),
 				ClientConfig:     tc.tlsConfig,
 			}
-			err := component.ValidateConfig(cfg)
 			if tc.expectError {
-				require.Error(t, err)
+				require.Error(t, component.ValidateConfig(cfg))
 			} else {
-				require.NoError(t, err)
+				require.NoError(t, component.ValidateConfig(cfg))
 			}
 		})
 	}

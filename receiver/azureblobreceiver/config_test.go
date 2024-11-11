@@ -66,8 +66,7 @@ func TestLoadConfig(t *testing.T) {
 func TestMissingConnectionString(t *testing.T) {
 	factory := NewFactory()
 	cfg := factory.CreateDefaultConfig()
-	err := component.ValidateConfig(cfg)
-	assert.EqualError(t, err, `"ConnectionString" is not specified in config`)
+	assert.EqualError(t, component.ValidateConfig(cfg), `"ConnectionString" is not specified in config`)
 }
 
 func TestMissingServicePrincipalCredentials(t *testing.T) {
