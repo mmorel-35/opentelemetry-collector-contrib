@@ -56,7 +56,6 @@ func TestExamples(t *testing.T) {
 			t.Setenv("DD_API_KEY", "aaaaaaaaa")
 			name := filepath.Join(folder, f.Name())
 			// https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33594
-			// nolint:staticcheck
 			_, err := otelcoltest.LoadConfigAndValidate(name, factories)
 			require.NoError(t, err, "All yaml config must validate. Please ensure that all necessary component factories are added in newTestComponents()")
 		})
@@ -86,7 +85,6 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, f.Close())
 		defer os.RemoveAll(f.Name())
 		// https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33594
-		// nolint:staticcheck
 		_, err = otelcoltest.LoadConfigAndValidate(f.Name(), factories)
 		require.NoError(t, err, "All yaml config must validate. Please ensure that all necessary component factories are added in newTestComponents()")
 	})
