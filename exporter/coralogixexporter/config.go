@@ -62,7 +62,7 @@ type Config struct {
 
 	// Reference:
 	// 	https://github.com/open-telemetry/opentelemetry-collector/issues/8122
-	BatcherConfig exporterhelper.BatcherConfig `mapstructure:"batcher"` //nolint:staticcheck
+	BatcherConfig exporterhelper.BatcherConfig `mapstructure:"batcher"`
 }
 
 func isEmpty(endpoint string) bool {

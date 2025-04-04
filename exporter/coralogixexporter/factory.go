@@ -34,7 +34,7 @@ func NewFactory() exporter.Factory {
 }
 
 func createDefaultConfig() component.Config {
-	batcherConfig := exporterhelper.NewDefaultBatcherConfig() //nolint:staticcheck
+	batcherConfig := exporterhelper.NewDefaultBatcherConfig()
 	batcherConfig.Enabled = false
 
 	return &Config{
@@ -87,7 +87,7 @@ func createTraceExporter(ctx context.Context, set exporter.Settings, config comp
 		exporterhelper.WithQueue(cfg.QueueSettings),
 		exporterhelper.WithStart(exporter.start),
 		exporterhelper.WithShutdown(exporter.shutdown),
-		exporterhelper.WithBatcher(cfg.BatcherConfig), //nolint:staticcheck
+		exporterhelper.WithBatcher(cfg.BatcherConfig),
 	)
 }
 
@@ -112,7 +112,7 @@ func createMetricsExporter(
 		exporterhelper.WithQueue(oCfg.QueueSettings),
 		exporterhelper.WithStart(oce.start),
 		exporterhelper.WithShutdown(oce.shutdown),
-		exporterhelper.WithBatcher(oCfg.BatcherConfig), //nolint:staticcheck
+		exporterhelper.WithBatcher(oCfg.BatcherConfig),
 	)
 }
 
@@ -137,7 +137,7 @@ func createLogsExporter(
 		exporterhelper.WithQueue(oCfg.QueueSettings),
 		exporterhelper.WithStart(oce.start),
 		exporterhelper.WithShutdown(oce.shutdown),
-		exporterhelper.WithBatcher(oCfg.BatcherConfig), //nolint:staticcheck
+		exporterhelper.WithBatcher(oCfg.BatcherConfig),
 	)
 }
 
@@ -162,6 +162,6 @@ func createProfilesExporter(
 		exporterhelper.WithQueue(oCfg.QueueSettings),
 		exporterhelper.WithStart(oce.start),
 		exporterhelper.WithShutdown(oce.shutdown),
-		exporterhelper.WithBatcher(oCfg.BatcherConfig), //nolint:staticcheck
+		exporterhelper.WithBatcher(oCfg.BatcherConfig),
 	)
 }

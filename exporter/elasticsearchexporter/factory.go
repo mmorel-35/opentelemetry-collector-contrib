@@ -80,9 +80,9 @@ func createDefaultConfig() component.Config {
 			LogResponseBody: false,
 		},
 		Batcher: BatcherConfig{
-			BatcherConfig: exporterhelper.BatcherConfig{ //nolint:staticcheck
+			BatcherConfig: exporterhelper.BatcherConfig{
 				FlushTimeout: 30 * time.Second,
-				SizeConfig: exporterhelper.SizeConfig{ //nolint:staticcheck
+				SizeConfig: exporterhelper.SizeConfig{
 					Sizer:   exporterhelper.RequestSizerTypeItems,
 					MinSize: defaultBatcherMinSizeItems,
 				},
@@ -202,7 +202,7 @@ func exporterhelperOptions(
 		exporterhelper.WithQueue(cfg.QueueSettings),
 	}
 	if cfg.Batcher.enabledSet {
-		opts = append(opts, exporterhelper.WithBatcher(cfg.Batcher.BatcherConfig)) //nolint:staticcheck
+		opts = append(opts, exporterhelper.WithBatcher(cfg.Batcher.BatcherConfig))
 
 		// Effectively disable timeout_sender because timeout is enforced in bulk indexer.
 		//
