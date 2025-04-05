@@ -252,7 +252,7 @@ func Test_evaluateMathExpression(t *testing.T) {
 			result, err := getter.Get(context.Background(), nil)
 			assert.NoError(t, err)
 
-			assert.EqualValues(t, tt.expected, result)
+			assert.Equal(t, tt.expected, result)
 		})
 	}
 }

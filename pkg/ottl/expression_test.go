@@ -721,7 +721,7 @@ func Test_newGetter(t *testing.T) {
 				// the comparison of pcommon.Map
 				assert.EqualValues(t, tt.want, v.AsRaw())
 			default:
-				assert.EqualValues(t, tt.want, v)
+				assert.Equal(t, tt.want, v)
 			}
 		})
 	}
