@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	eventhub "github.com/Azure/azure-event-hubs-go/v3"
+	"github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs"
 	"go.uber.org/zap"
 )
 
@@ -26,7 +26,7 @@ type azureBlobEventHandler struct {
 	logsContainerName        string
 	tracesContainerName      string
 	eventHubConnectionString string
-	hub                      *eventhub.Hub
+	consumerClient           *azeventhubs.ConsumerClient
 	logger                   *zap.Logger
 }
 
@@ -37,33 +37,46 @@ const (
 )
 
 func (p *azureBlobEventHandler) run(ctx context.Context) error {
-	if p.hub != nil {
+	if p.consumerClient != nil {
 		return nil
 	}
 
-	hub, err := eventhub.NewHubFromConnectionString(p.eventHubConnectionString)
+	consumerClient, err := azeventhubs.NewConsumerClientFromConnectionString(p.eventHubConnectionString, "", azeventhubs.DefaultConsumerGroup, nil)
 	if err != nil {
 		return err
 	}
 
-	p.hub = hub
+	p.consumerClient = consumerClient
 
-	runtimeInfo, err := hub.GetRuntimeInformation(ctx)
+	runtimeInfo, err := p.consumerClient.GetEventHubProperties(ctx, nil)
 	if err != nil {
 		return err
 	}
 
 	for _, partitionID := range runtimeInfo.PartitionIDs {
-		_, err := hub.Receive(ctx, partitionID, p.newMessageHandler, eventhub.ReceiveWithLatestOffset())
+		partitionClient, err := p.consumerClient.NewPartitionClient(partitionID, nil)
 		if err != nil {
 			return err
+		}
+		defer partitionClient.Close(context.Background())
+		for {
+			events, err := partitionClient.ReceiveEvents(ctx, 100, nil)
+			if err != nil {
+				return err
+			}
+			for _, event := range events {
+				err = p.newMessageHandler(ctx, event)
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
 
 	return nil
 }
 
-func (p *azureBlobEventHandler) newMessageHandler(ctx context.Context, event *eventhub.Event) error {
+func (p *azureBlobEventHandler) newMessageHandler(ctx context.Context, event *azeventhubs.ReceivedEventData) error {
 	type eventData struct {
 		Topic           string
 		Subject         string
@@ -75,7 +88,7 @@ func (p *azureBlobEventHandler) newMessageHandler(ctx context.Context, event *ev
 		EventTime       string
 	}
 	var eventDataSlice []eventData
-	marshalErr := json.Unmarshal(event.Data, &eventDataSlice)
+	marshalErr := json.Unmarshal(event.Body, &eventDataSlice)
 	if marshalErr != nil {
 		return marshalErr
 	}
@@ -109,12 +122,12 @@ func (p *azureBlobEventHandler) newMessageHandler(ctx context.Context, event *ev
 }
 
 func (p *azureBlobEventHandler) close(ctx context.Context) error {
-	if p.hub != nil {
-		err := p.hub.Close(ctx)
+	if p.consumerClient != nil {
+		err := p.consumerClient.Close(ctx)
 		if err != nil {
 			return err
 		}
-		p.hub = nil
+		p.consumerClient = nil
 	}
 	return nil
 }
