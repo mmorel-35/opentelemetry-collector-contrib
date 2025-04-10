@@ -5,7 +5,7 @@ package ctxutil_test
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,7 +53,7 @@ func Test_GetSliceValue_Invalid(t *testing.T) {
 					G: getSetter,
 				},
 			},
-			err: fmt.Errorf(`unable to resolve an integer index in slice: could not resolve key for map/slice, expecting 'int64' but got '<nil>'`),
+			err: errors.New(`unable to resolve an integer index in slice: could not resolve key for map/slice, expecting 'int64' but got '<nil>'`),
 		},
 		{
 			name: "index too large",
@@ -63,7 +63,7 @@ func Test_GetSliceValue_Invalid(t *testing.T) {
 					G: getSetter,
 				},
 			},
-			err: fmt.Errorf("index 1 out of bounds"),
+			err: errors.New("index 1 out of bounds"),
 		},
 		{
 			name: "index too small",
@@ -73,7 +73,7 @@ func Test_GetSliceValue_Invalid(t *testing.T) {
 					G: getSetter,
 				},
 			},
-			err: fmt.Errorf("index -1 out of bounds"),
+			err: errors.New("index -1 out of bounds"),
 		},
 		{
 			name: "invalid type",
@@ -87,7 +87,7 @@ func Test_GetSliceValue_Invalid(t *testing.T) {
 					G: getSetter,
 				},
 			},
-			err: fmt.Errorf("type Str does not support string indexing"),
+			err: errors.New("type Str does not support string indexing"),
 		},
 	}
 
@@ -140,7 +140,7 @@ func Test_SetSliceValue_Invalid(t *testing.T) {
 					G: getSetter,
 				},
 			},
-			err: fmt.Errorf(`unable to resolve an integer index in slice: could not resolve key for map/slice, expecting 'int64' but got '<nil>'`),
+			err: errors.New(`unable to resolve an integer index in slice: could not resolve key for map/slice, expecting 'int64' but got '<nil>'`),
 		},
 		{
 			name: "index too large",
@@ -150,7 +150,7 @@ func Test_SetSliceValue_Invalid(t *testing.T) {
 					G: getSetter,
 				},
 			},
-			err: fmt.Errorf("index 1 out of bounds"),
+			err: errors.New("index 1 out of bounds"),
 		},
 		{
 			name: "index too small",
@@ -160,7 +160,7 @@ func Test_SetSliceValue_Invalid(t *testing.T) {
 					G: getSetter,
 				},
 			},
-			err: fmt.Errorf("index -1 out of bounds"),
+			err: errors.New("index -1 out of bounds"),
 		},
 		{
 			name: "invalid type",
@@ -174,7 +174,7 @@ func Test_SetSliceValue_Invalid(t *testing.T) {
 					G: getSetter,
 				},
 			},
-			err: fmt.Errorf("type Str does not support string indexing"),
+			err: errors.New("type Str does not support string indexing"),
 		},
 	}
 
