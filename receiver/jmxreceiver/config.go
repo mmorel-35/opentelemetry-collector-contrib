@@ -132,7 +132,7 @@ func (c *Config) parseProperties(logger *zap.Logger) []string {
 		parsed := make([]string, 0, 1)
 
 		logLevel := "info"
-		if len(c.LogLevel) > 0 {
+		if c.LogLevel != "" {
 			logLevel = strings.ToLower(c.LogLevel)
 		} else if logger != nil {
 			logLevel = getZapLoggerLevelEquivalent(logger)
@@ -328,7 +328,7 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("`otlp.timeout` must be positive: %vms", c.OTLPExporterConfig.TimeoutSettings.Timeout.Milliseconds())
 	}
 
-	if len(c.LogLevel) > 0 {
+	if c.LogLevel != "" {
 		if isSupportedJAR(jmxScraperVersions, c.JARPath) {
 			return errors.New("`log_level` can only be used with a JMX Metrics Gatherer JAR")
 		}
