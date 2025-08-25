@@ -86,7 +86,7 @@ jobs:
         if: steps.go-setup.outputs.cache-hit != 'true'
         run: make install-tools
       - name: Lint
-        run: GOOS=${{ matrix.goos }} GOARCH=amd64 make -j2 golint GROUP=${{ matrix.group }}
+        run: GOOS=${{ matrix.goos }} GOARCH=amd64 make -k -j2 golint GROUP=${{ matrix.group }}
   lint:
     if: ${{ github.actor != 'dependabot[bot]' && always() }}
     runs-on: ubuntu-24.04

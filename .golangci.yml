@@ -134,7 +134,6 @@ linters:
         - todoCommentWithoutDetail
         - tooManyResultsChecker
         - unnamedResult
-        - whyNoLint
 
       enable-all: true
 
@@ -169,6 +168,7 @@ linters:
       locale: US
 
     nolintlint:
+      require-explanation: true
       require-specific: true
 
     predeclared:
