@@ -36,6 +36,7 @@ linters:
     - gosec
     - govet
     - misspell
+    - noctx
     - nolintlint
     - predeclared
     - reassign

@@ -487,7 +487,12 @@ func TestSupervisorStartsCollectorWithNoOpAMPServerWithNoLastRemoteConfig(t *tes
 
 			// Verify the collector runs eventually by pinging the healthcheck extension
 			require.Eventually(t, func() bool {
-				resp, err := http.DefaultClient.Get("http://localhost:13133")
+				req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://localhost:13133", http.NoBody)
+				if err != nil {
+					t.Logf("Failed to create request: %s", err)
+					return false
+				}
+				resp, err := http.DefaultClient.Do(req)
 				if err != nil {
 					t.Logf("Failed healthcheck: %s", err)
 					return false
@@ -559,7 +564,12 @@ func TestSupervisorStartsCollectorWithNoOpAMPServerUsingLastRemoteConfig(t *test
 
 			// Verify the collector runs eventually by pinging the healthcheck extension
 			require.Eventually(t, func() bool {
-				resp, err := http.DefaultClient.Get(fmt.Sprintf("http://localhost:%d", healthcheckPort))
+				req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://localhost:%d", healthcheckPort), http.NoBody)
+				if err != nil {
+					t.Logf("Failed to create request: %s", err)
+					return false
+				}
+				resp, err := http.DefaultClient.Do(req)
 				if err != nil {
 					t.Logf("Failed healthcheck: %s", err)
 					return false
@@ -647,7 +657,12 @@ func TestSupervisorStartsCollectorWithRemoteConfigAndExecParams(t *testing.T) {
 
 	for _, port := range []int{healthcheckPort, secondHealthcheckPort} {
 		require.Eventually(t, func() bool {
-			resp, err := http.DefaultClient.Get(fmt.Sprintf("http://localhost:%d", port))
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://localhost:%d", port), http.NoBody)
+			if err != nil {
+				t.Logf("Failed to create request: %s", err)
+				return false
+			}
+			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
 				t.Logf("Failed healthcheck: %s", err)
 				return false
@@ -707,7 +722,9 @@ func TestSupervisorStartsWithNoOpAMPServer(t *testing.T) {
 
 	// Verify the collector is not running after 250 ms by checking the healthcheck endpoint
 	time.Sleep(250 * time.Millisecond)
-	_, err := http.DefaultClient.Get("http://localhost:12345")
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://localhost:12345", http.NoBody)
+	require.NoError(t, err)
+	_, err = http.DefaultClient.Do(req)
 
 	if runtime.GOOS != "windows" {
 		require.ErrorContains(t, err, "connection refused")
@@ -1911,7 +1928,12 @@ func TestSupervisorStopsAgentProcessWithEmptyConfigMap(t *testing.T) {
 
 	// Use health check endpoint to determine if the collector is actually running
 	require.Eventually(t, func() bool {
-		resp, err := http.DefaultClient.Get("http://localhost:13133")
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://localhost:13133", http.NoBody)
+		if err != nil {
+			t.Logf("Failed to create request: %s", err)
+			return false
+		}
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			t.Logf("Failed agent healthcheck request: %s", err)
 			return false
@@ -1943,7 +1965,9 @@ func TestSupervisorStopsAgentProcessWithEmptyConfigMap(t *testing.T) {
 
 	// Verify the collector is not running after 250 ms by checking the healthcheck endpoint
 	require.EventuallyWithT(t, func(tt *assert.CollectT) {
-		_, err := http.DefaultClient.Get("http://localhost:12345")
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://localhost:12345", http.NoBody)
+		assert.NoError(tt, err)
+		_, err = http.DefaultClient.Do(req)
 		if runtime.GOOS != "windows" {
 			assert.ErrorContains(tt, err, "connection refused")
 		} else {
@@ -2321,7 +2345,12 @@ func TestSupervisorHealthCheckServer(t *testing.T) {
 
 	// Wait for the health check server to start
 	require.Eventually(t, func() bool {
-		resp, err := http.Get(fmt.Sprintf("http://localhost:%d/health", randomPort))
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://localhost:%d/health", randomPort), http.NoBody)
+		if err != nil {
+			t.Logf("Failed to create request: %s", err)
+			return false
+		}
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			t.Logf("Failed health check request: %s", err)
 			return false
@@ -2360,7 +2389,12 @@ func TestSupervisorHealthCheckServerBackendConnError(t *testing.T) {
 
 	// Wait for the health check server to start
 	require.Eventually(t, func() bool {
-		resp, err := http.Get(fmt.Sprintf("http://localhost:%d/health", healthcheckPort))
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://localhost:%d/health", healthcheckPort), http.NoBody)
+		if err != nil {
+			t.Logf("Failed to create request: %s", err)
+			return false
+		}
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			t.Logf("Failed health check request: %s", err)
 			return false

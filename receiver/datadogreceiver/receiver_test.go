@@ -121,7 +121,8 @@ func TestDatadogServer(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			req, err := http.NewRequest(
+			req, err := http.NewRequestWithContext(
+				t.Context(),
 				http.MethodPost,
 				fmt.Sprintf(tc.endpoint, dd.(*datadogReceiver).address),
 				tc.op,
@@ -311,7 +312,8 @@ func TestDatadogInfoEndpoint(t *testing.T) {
 				require.NoError(t, dd.Shutdown(ctx), "Must not error shutting down")
 			}()
 
-			req, err := http.NewRequest(
+			req, err := http.NewRequestWithContext(
+				t.Context(),
 				http.MethodPost,
 				fmt.Sprintf("http://%s/info", dd.(*datadogReceiver).address),
 				http.NoBody,
@@ -362,7 +364,8 @@ func TestDatadogMetricsV1_EndToEnd(t *testing.T) {
 		]
 	}`)
 
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		t.Context(),
 		http.MethodPost,
 		fmt.Sprintf("http://%s/api/v1/series", dd.(*datadogReceiver).address),
 		io.NopCloser(bytes.NewReader(metricsPayloadV1)),
@@ -443,7 +446,8 @@ func TestDatadogMetricsV2_EndToEnd(t *testing.T) {
 	pb, err := metricsPayloadV2.Marshal()
 	assert.NoError(t, err)
 
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		t.Context(),
 		http.MethodPost,
 		fmt.Sprintf("http://%s/api/v2/series", dd.(*datadogReceiver).address),
 		io.NopCloser(bytes.NewReader(pb)),
@@ -522,7 +526,8 @@ func TestDatadogMetricsV2_EndToEndJSON(t *testing.T) {
 		]
 	}`)
 
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		t.Context(),
 		http.MethodPost,
 		fmt.Sprintf("http://%s/api/v2/series", dd.(*datadogReceiver).address),
 		io.NopCloser(bytes.NewReader(metricsPayloadV2)),
@@ -605,7 +610,8 @@ func TestDatadogSketches_EndToEnd(t *testing.T) {
 	pb, err := sketchPayload.Marshal()
 	assert.NoError(t, err)
 
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		t.Context(),
 		http.MethodPost,
 		fmt.Sprintf("http://%s/api/beta/sketches", dd.(*datadogReceiver).address),
 		io.NopCloser(bytes.NewReader(pb)),
@@ -709,7 +715,8 @@ func TestStats_EndToEnd(t *testing.T) {
 	payload, err := clientStatsPayload.MarshalMsg(nil)
 	assert.NoError(t, err)
 
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		t.Context(),
 		http.MethodPost,
 		fmt.Sprintf("http://%s/v0.6/stats", dd.(*datadogReceiver).address),
 		io.NopCloser(bytes.NewReader(payload)),
@@ -772,7 +779,8 @@ func TestDatadogServices_EndToEnd(t *testing.T) {
 		}
 	]`)
 
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		t.Context(),
 		http.MethodPost,
 		fmt.Sprintf("http://%s/api/v1/check_run", dd.(*datadogReceiver).address),
 		io.NopCloser(bytes.NewReader(servicesPayload)),

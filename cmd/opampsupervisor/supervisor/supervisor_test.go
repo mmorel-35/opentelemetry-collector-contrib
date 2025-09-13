@@ -2126,7 +2126,11 @@ func TestSupervisor_HealthCheckServer(t *testing.T) {
 	require.NotEmpty(t, addr)
 
 	sendHealthCheckRequest := func() (*http.Response, error) {
-		return http.Get(fmt.Sprintf("http://%s/health", addr))
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://%s/health", addr), http.NoBody)
+		if err != nil {
+			return nil, err
+		}
+		return http.DefaultClient.Do(req)
 	}
 
 	t.Run("Health check server startup", func(t *testing.T) {
