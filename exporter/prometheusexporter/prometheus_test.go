@@ -27,6 +27,14 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry"
 )
 
+func httpGetMetrics(t *testing.T, addr string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://"+addr+"/metrics", http.NoBody)
+	if err != nil {
+		return nil, err
+	}
+	return http.DefaultClient.Do(req)
+}
+
 func TestPrometheusExporter(t *testing.T) {
 	tests := []struct {
 		config       func() *Config
@@ -209,7 +217,7 @@ func TestPrometheusExporter_endToEndMultipleTargets(t *testing.T) {
 		assert.NoError(t, exp.ConsumeMetrics(t.Context(), metricBuilder(int64(delta), "metric_2_", "cpu-exporter", "localhost:8080")))
 		assert.NoError(t, exp.ConsumeMetrics(t.Context(), metricBuilder(int64(delta), "metric_2_", "cpu-exporter", "localhost:8081")))
 
-		res, err1 := http.Get("http://" + addr + "/metrics")
+		res, err1 := httpGetMetrics(t, addr)
 		require.NoError(t, err1, "Failed to perform a scrape")
 
 		assert.Equal(t, http.StatusOK, res.StatusCode, "Mismatched HTTP response status code")
@@ -239,7 +247,7 @@ func TestPrometheusExporter_endToEndMultipleTargets(t *testing.T) {
 	exp.(*wrapMetricsExporter).exporter.collector.accumulator.(*lastValueAccumulator).metricExpiration = 1 * time.Millisecond
 	time.Sleep(10 * time.Millisecond)
 
-	res, err := http.Get("http://" + addr + "/metrics")
+	res, err := httpGetMetrics(t, addr)
 	require.NoError(t, err, "Failed to perform a scrape")
 
 	assert.Equal(t, http.StatusOK, res.StatusCode, "Mismatched HTTP response status code")
@@ -281,7 +289,7 @@ func TestPrometheusExporter_endToEnd(t *testing.T) {
 	for delta := 0; delta <= 20; delta += 10 {
 		assert.NoError(t, exp.ConsumeMetrics(t.Context(), metricBuilder(int64(delta), "metric_2_", "cpu-exporter", "localhost:8080")))
 
-		res, err1 := http.Get("http://" + addr + "/metrics")
+		res, err1 := httpGetMetrics(t, addr)
 		require.NoError(t, err1, "Failed to perform a scrape")
 
 		assert.Equal(t, http.StatusOK, res.StatusCode, "Mismatched HTTP response status code")
@@ -307,7 +315,7 @@ func TestPrometheusExporter_endToEnd(t *testing.T) {
 	exp.(*wrapMetricsExporter).exporter.collector.accumulator.(*lastValueAccumulator).metricExpiration = 1 * time.Millisecond
 	time.Sleep(10 * time.Millisecond)
 
-	res, err := http.Get("http://" + addr + "/metrics")
+	res, err := httpGetMetrics(t, addr)
 	require.NoError(t, err, "Failed to perform a scrape")
 
 	assert.Equal(t, http.StatusOK, res.StatusCode, "Mismatched HTTP response status code")
@@ -350,7 +358,7 @@ func TestPrometheusExporter_endToEndWithTimestamps(t *testing.T) {
 	for delta := 0; delta <= 20; delta += 10 {
 		assert.NoError(t, exp.ConsumeMetrics(t.Context(), metricBuilder(int64(delta), "metric_2_", "node-exporter", "localhost:8080")))
 
-		res, err1 := http.Get("http://" + addr + "/metrics")
+		res, err1 := httpGetMetrics(t, addr)
 		require.NoError(t, err1, "Failed to perform a scrape")
 
 		assert.Equal(t, http.StatusOK, res.StatusCode, "Mismatched HTTP response status code")
@@ -376,7 +384,7 @@ func TestPrometheusExporter_endToEndWithTimestamps(t *testing.T) {
 	exp.(*wrapMetricsExporter).exporter.collector.accumulator.(*lastValueAccumulator).metricExpiration = 1 * time.Millisecond
 	time.Sleep(10 * time.Millisecond)
 
-	res, err := http.Get("http://" + addr + "/metrics")
+	res, err := httpGetMetrics(t, addr)
 	require.NoError(t, err, "Failed to perform a scrape")
 
 	assert.Equal(t, http.StatusOK, res.StatusCode, "Mismatched HTTP response status code")
@@ -420,7 +428,7 @@ func TestPrometheusExporter_endToEndWithResource(t *testing.T) {
 
 	assert.NoError(t, exp.ConsumeMetrics(t.Context(), md))
 
-	rsp, err := http.Get("http://" + addr + "/metrics")
+	rsp, err := httpGetMetrics(t, addr)
 	require.NoError(t, err, "Failed to perform a scrape")
 
 	assert.Equal(t, http.StatusOK, rsp.StatusCode, "Mismatched HTTP response status code")

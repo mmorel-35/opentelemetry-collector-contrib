@@ -81,7 +81,11 @@ func (waitStrategy) WaitUntilReady(ctx context.Context, st wait.StrategyTarget) 
 		case <-time.After(5 * time.Second):
 			return errors.New("server startup problem")
 		case <-time.After(100 * time.Millisecond):
-			resp, err := http.Get(fmt.Sprintf("http://%s:%s/server-status?auto", hostname, port.Port()))
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s:%s/server-status?auto", hostname, port.Port()), http.NoBody)
+			if err != nil {
+				continue
+			}
+			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
 				continue
 			}

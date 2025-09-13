@@ -129,7 +129,9 @@ func Test_PushMetricsConcurrent(t *testing.T) {
 
 	// Ensure that the test server is up before making the requests
 	assert.EventuallyWithT(t, func(c *assert.CollectT) {
-		resp, checkRequestErr := http.Get(server.URL)
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.URL, http.NoBody)
+		require.NoError(c, err)
+		resp, checkRequestErr := http.DefaultClient.Do(req)
 		require.NoError(c, checkRequestErr)
 		assert.NoError(c, resp.Body.Close())
 	}, 15*time.Second, 100*time.Millisecond)
