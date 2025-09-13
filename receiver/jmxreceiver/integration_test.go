@@ -79,7 +79,11 @@ func (suite *jmxIntegrationSuite) TearDownSuite() {
 }
 
 func downloadJMXJAR(t *testing.T, url string) (string, error) {
-	resp, err := http.Get(url) //nolint:gosec
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, http.NoBody)
+	if err != nil {
+		return "", err
+	}
+	resp, err := http.DefaultClient.Do(req) //nolint:gosec
 	if err != nil {
 		return "", err
 	}

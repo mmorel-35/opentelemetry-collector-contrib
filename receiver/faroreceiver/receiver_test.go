@@ -85,7 +85,7 @@ func TestFaroReceiver_Start(t *testing.T) {
 			contents, err := os.ReadFile(tc.payload)
 			require.NoError(t, err)
 
-			req, err := http.NewRequest(http.MethodPost, server.URL+faroPath, bytes.NewBuffer(contents))
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, server.URL+faroPath, bytes.NewBuffer(contents))
 			require.NoError(t, err)
 			req.Header.Set("Content-Type", "application/json")
 
