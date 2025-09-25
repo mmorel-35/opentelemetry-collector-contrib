@@ -2971,12 +2971,16 @@ func TestStatus(t *testing.T) {
 
 				if ts.eventually {
 					assert.EventuallyWithT(t, func(tt *assert.CollectT) {
-						resp, err = client.Get(stepURL)
+						req, err1 := http.NewRequestWithContext(t.Context(), http.MethodGet, stepURL, http.NoBody)
+						require.NoError(tt, err1)
+						resp, err = client.Do(req)
 						require.NoError(tt, err)
 						assert.Equal(tt, ts.expectedStatusCode, resp.StatusCode)
 					}, time.Second, 10*time.Millisecond)
 				} else {
-					resp, err = client.Get(stepURL)
+					req, err1 := http.NewRequestWithContext(t.Context(), http.MethodGet, stepURL, http.NoBody)
+					require.NoError(t, err1)
+					resp, err = client.Do(req)
 					require.NoError(t, err)
 					assert.Equal(t, ts.expectedStatusCode, resp.StatusCode)
 				}
@@ -3132,7 +3136,10 @@ func TestConfig(t *testing.T) {
 				tc.setup()
 			}
 
-			resp, err := client.Get(url)
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, http.NoBody)
+			require.NoError(t, err)
+
+			resp, err := client.Do(req)
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedStatusCode, resp.StatusCode)
 

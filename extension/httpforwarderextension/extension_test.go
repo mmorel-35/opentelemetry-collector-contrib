@@ -274,7 +274,7 @@ func TestExtension(t *testing.T) {
 }
 
 func httpRequest(t *testing.T, args clientRequestArgs) *http.Request {
-	r, err := http.NewRequest(args.method, args.url, io.NopCloser(strings.NewReader(args.body)))
+	r, err := http.NewRequestWithContext(t.Context(), args.method, args.url, io.NopCloser(strings.NewReader(args.body)))
 	require.NoError(t, err)
 
 	for k, v := range args.headers {

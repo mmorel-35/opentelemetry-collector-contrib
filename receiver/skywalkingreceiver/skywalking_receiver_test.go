@@ -137,7 +137,7 @@ func TestHttpReception(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, mockSwReceiver.Start(t.Context(), componenttest.NewNopHost()))
 	t.Cleanup(func() { require.NoError(t, mockSwReceiver.Shutdown(t.Context())) })
-	req, err := http.NewRequest(http.MethodPost, "http://127.0.0.1:12800/v3/segments", bytes.NewBuffer(traceJSON))
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "http://127.0.0.1:12800/v3/segments", bytes.NewBuffer(traceJSON))
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}

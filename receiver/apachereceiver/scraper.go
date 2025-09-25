@@ -147,7 +147,11 @@ func addPartialIfError(errs *scrapererror.ScrapeErrors, err error) {
 
 // GetStats collects metric stats by making a get request at an endpoint.
 func (r *apacheScraper) GetStats() (string, error) {
-	resp, err := r.httpClient.Get(r.cfg.Endpoint)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, r.cfg.Endpoint, http.NoBody)
+	if err != nil {
+		return "", err
+	}
+	resp, err := r.httpClient.Do(req)
 	if err != nil {
 		return "", err
 	}

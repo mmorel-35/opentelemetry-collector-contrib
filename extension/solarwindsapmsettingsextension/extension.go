@@ -80,7 +80,7 @@ func (extension *solarwindsapmSettingsExtension) Start(_ context.Context, host c
 	if err != nil {
 		return err
 	}
-	extension.request, err = http.NewRequest(http.MethodGet, "https://"+extension.config.Endpoint+"/v1/settings/"+serviceName+"/"+hostname, http.NoBody)
+	extension.request, err = http.NewRequestWithContext(context.Background(), http.MethodGet, "https://"+extension.config.Endpoint+"/v1/settings/"+serviceName+"/"+hostname, http.NoBody)
 	if err != nil {
 		return err
 	}

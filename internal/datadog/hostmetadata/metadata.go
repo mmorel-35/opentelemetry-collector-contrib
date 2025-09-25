@@ -113,7 +113,7 @@ func (p *pusher) pushMetadata(hm payload.HostMetadata) error {
 		return fmt.Errorf("error closing gzip writer: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, path, &buf)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, path, &buf)
 	if err != nil {
 		return fmt.Errorf("error creating metadata request: %w", err)
 	}

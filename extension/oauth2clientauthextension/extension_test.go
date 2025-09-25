@@ -309,7 +309,7 @@ func TestFailContactingOAuth(t *testing.T) {
 		Transport: roundTripper,
 	}
 
-	req, err := http.NewRequest(http.MethodPost, "http://example.com/", http.NoBody)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "http://example.com/", http.NoBody)
 	require.NoError(t, err)
 	_, err = client.Do(req)
 	assert.ErrorIs(t, err, errFailedToGetSecurityToken)

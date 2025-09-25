@@ -120,13 +120,17 @@ func TestNotifyConfig(t *testing.T) {
 
 	var resp *http.Response
 
-	resp, err = client.Get(url)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, http.NoBody)
+	require.NoError(t, err)
+	resp, err = client.Do(req)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusServiceUnavailable, resp.StatusCode)
 
 	require.NoError(t, ext.NotifyConfig(t.Context(), confMap))
 
-	resp, err = client.Get(url)
+	req, err = http.NewRequestWithContext(t.Context(), http.MethodGet, url, http.NoBody)
+	require.NoError(t, err)
+	resp, err = client.Do(req)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 

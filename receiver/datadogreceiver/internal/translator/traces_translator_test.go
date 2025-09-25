@@ -90,7 +90,7 @@ func TestTracePayloadV05Unmarshalling(t *testing.T) {
 	assert.NoError(t, err)
 
 	require.NoError(t, traces.UnmarshalMsgDictionary(payload), "Must not error when marshaling content")
-	req, _ := http.NewRequest(http.MethodPost, "/v0.5/traces", io.NopCloser(bytes.NewReader(payload)))
+	req, _ := http.NewRequestWithContext(t.Context(), http.MethodPost, "/v0.5/traces", io.NopCloser(bytes.NewReader(payload)))
 
 	tracePayloads, _ := HandleTracesPayload(req)
 	assert.Len(t, tracePayloads, 1, "Expected one translated payload")
@@ -132,7 +132,7 @@ func TestTracePayloadV07Unmarshalling(t *testing.T) {
 	}
 	var reqBytes []byte
 	bytez, _ := apiPayload.MarshalMsg(reqBytes)
-	req, _ := http.NewRequest(http.MethodPost, "/v0.7/traces", io.NopCloser(bytes.NewReader(bytez)))
+	req, _ := http.NewRequestWithContext(t.Context(), http.MethodPost, "/v0.7/traces", io.NopCloser(bytes.NewReader(bytez)))
 
 	translatedPayloads, _ := HandleTracesPayload(req)
 	assert.Len(t, translatedPayloads, 1, "Expected one translated payload")
@@ -168,7 +168,7 @@ func TestTracePayloadApiV02Unmarshalling(t *testing.T) {
 	agentPayload := agentPayloadFromTraces(&traces)
 
 	bytez, _ := proto.Marshal(&agentPayload)
-	req, _ := http.NewRequest(http.MethodPost, "/api/v0.2/traces", io.NopCloser(bytes.NewReader(bytez)))
+	req, _ := http.NewRequestWithContext(t.Context(), http.MethodPost, "/api/v0.2/traces", io.NopCloser(bytes.NewReader(bytez)))
 
 	translatedPayloads, _ := HandleTracesPayload(req)
 	assert.Len(t, translatedPayloads, 2, "Expected two translated payload")
@@ -207,7 +207,7 @@ func agentPayloadFromTraces(traces *pb.Traces) (agentPayload pb.AgentPayload) {
 
 func TestUpsertHeadersAttributes(t *testing.T) {
 	// Test case 1: Datadog-Meta-Tracer-Version is present in headers
-	req1, _ := http.NewRequest(http.MethodGet, "http://example.com", http.NoBody)
+	req1, _ := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://example.com", http.NoBody)
 	req1.Header.Set(header.TracerVersion, "1.2.3")
 	attrs1 := pcommon.NewMap()
 	upsertHeadersAttributes(req1, attrs1)
@@ -216,7 +216,7 @@ func TestUpsertHeadersAttributes(t *testing.T) {
 	assert.Equal(t, "Datadog-1.2.3", val.Str())
 
 	// Test case 2: Datadog-Meta-Lang is present in headers with ".NET"
-	req2, _ := http.NewRequest(http.MethodGet, "http://example.com", http.NoBody)
+	req2, _ := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://example.com", http.NoBody)
 	req2.Header.Set(header.Lang, ".NET")
 	attrs2 := pcommon.NewMap()
 	upsertHeadersAttributes(req2, attrs2)

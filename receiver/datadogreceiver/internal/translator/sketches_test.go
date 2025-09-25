@@ -140,7 +140,7 @@ func TestHandleSketchPayload(t *testing.T) {
 			pb, err := tt.sketchPayload.Marshal()
 			require.NoError(t, err)
 
-			req, err := http.NewRequest(http.MethodPost, "/api/beta/sketches", io.NopCloser(bytes.NewReader(pb)))
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "/api/beta/sketches", io.NopCloser(bytes.NewReader(pb)))
 			require.NoError(t, err)
 
 			mt := createMetricsTranslator()

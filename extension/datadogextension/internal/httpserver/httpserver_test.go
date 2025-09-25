@@ -469,9 +469,12 @@ func TestServerStop(t *testing.T) {
 
 				if tt.simulateSlowStop {
 					cancel()
-					resp, err := http.Get("http://" + srv.server.Addr + "/block")
+					req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://"+srv.server.Addr+"/block", http.NoBody)
 					if err == nil {
-						_ = resp.Body.Close()
+						resp, err := http.DefaultClient.Do(req)
+						if err == nil {
+							_ = resp.Body.Close()
+						}
 					}
 				}
 			}

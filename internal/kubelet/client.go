@@ -4,6 +4,7 @@
 package kubelet // import "github.com/open-telemetry/opentelemetry-collector-contrib/internal/kubelet"
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -298,7 +299,7 @@ func (c *clientImpl) buildReq(p string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodGet, reqURL, http.NoBody)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, reqURL, http.NoBody)
 	if err != nil {
 		return nil, err
 	}

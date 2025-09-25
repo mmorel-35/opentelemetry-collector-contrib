@@ -50,11 +50,11 @@ func newLogsExporter(config *Config, settings component.TelemetrySettings, build
 	return e
 }
 
-func (m *mezmoExporter) pushLogData(_ context.Context, ld plog.Logs) error {
+func (m *mezmoExporter) pushLogData(ctx context.Context, ld plog.Logs) error {
 	m.wg.Add(1)
 	defer m.wg.Done()
 
-	return m.logDataToMezmo(ld)
+	return m.logDataToMezmo(ctx, ld)
 }
 
 func (m *mezmoExporter) start(ctx context.Context, host component.Host) (err error) {
@@ -72,7 +72,7 @@ func (m *mezmoExporter) stop(context.Context) (err error) {
 	return nil
 }
 
-func (m *mezmoExporter) logDataToMezmo(ld plog.Logs) error {
+func (m *mezmoExporter) logDataToMezmo(ctx context.Context, ld plog.Logs) error {
 	var errs error
 
 	var lines []mezmoLogLine
@@ -147,7 +147,7 @@ func (m *mezmoExporter) logDataToMezmo(ld plog.Logs) error {
 		if newBufSize >= maxBodySize-2 {
 			str := b.String()
 			str = str[:len(str)-1] + "]}"
-			if errs := m.sendLinesToMezmo(str); errs != nil {
+			if errs := m.sendLinesToMezmo(ctx, str); errs != nil {
 				return errs
 			}
 			b.Reset()
@@ -161,11 +161,11 @@ func (m *mezmoExporter) logDataToMezmo(ld plog.Logs) error {
 		}
 	}
 
-	return m.sendLinesToMezmo(b.String() + "]}")
+	return m.sendLinesToMezmo(ctx, b.String()+"]}")
 }
 
-func (m *mezmoExporter) sendLinesToMezmo(post string) (errs error) {
-	req, _ := http.NewRequest(http.MethodPost, m.config.IngestURL, strings.NewReader(post))
+func (m *mezmoExporter) sendLinesToMezmo(ctx context.Context, post string) (errs error) {
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, m.config.IngestURL, strings.NewReader(post))
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("User-Agent", m.userAgentString)

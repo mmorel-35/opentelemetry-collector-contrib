@@ -40,7 +40,11 @@ type haproxyScraper struct {
 func (s *haproxyScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 	var records []map[string]string
 	if u, notURLerr := url.Parse(s.cfg.Endpoint); notURLerr == nil && strings.HasPrefix(u.Scheme, "http") {
-		resp, err := s.httpClient.Get(s.cfg.Endpoint + ";csv")
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, s.cfg.Endpoint+";csv", http.NoBody)
+		if err != nil {
+			return pmetric.NewMetrics(), err
+		}
+		resp, err := s.httpClient.Do(req)
 		if err != nil {
 			return pmetric.NewMetrics(), err
 		}

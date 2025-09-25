@@ -5,6 +5,7 @@ package opampextension // import "github.com/open-telemetry/opentelemetry-collec
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -61,7 +62,7 @@ func makeHeadersFunc(logger *zap.Logger, serverCfg *OpAMPServer, host component.
 		// This is a workaround while websocket authentication is being worked on.
 		// Currently, we are waiting on the auth module to be stabilized.
 		// See for more info: https://github.com/open-telemetry/opentelemetry-collector/issues/10864
-		dummyReq, err := http.NewRequest(http.MethodGet, "http://example.com", http.NoBody)
+		dummyReq, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://example.com", http.NoBody)
 		if err != nil {
 			logger.Error("Failed to create dummy request for authentication.", zap.Error(err))
 			return h

@@ -5,6 +5,7 @@ package zipkinexporter
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -78,7 +79,10 @@ func TestZipkinExporter_roundtripJSON(t *testing.T) {
 	t.Cleanup(func() { require.NoError(t, zi.Shutdown(t.Context())) })
 
 	// Let the receiver receive "uploaded Zipkin spans from a Java client application"
-	_, err = http.Post("http://"+addr, "application/json", strings.NewReader(zipkinSpansJSONJavaLibrary))
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "http://"+addr, strings.NewReader(zipkinSpansJSONJavaLibrary))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	_, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
 
 	// Use the mock zipkin reporter to ensure all expected spans in a single batch. Since Flush waits for
@@ -176,7 +180,7 @@ func (r *mockZipkinReporter) Flush() error {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, r.url, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, r.url, bytes.NewReader(body))
 	if err != nil {
 		return err
 	}
@@ -327,7 +331,8 @@ func TestZipkinExporter_roundtripProto(t *testing.T) {
 	t.Cleanup(func() { require.NoError(t, zi.Shutdown(t.Context())) })
 
 	// Let the receiver receive "uploaded Zipkin spans from a Java client application"
-	_, _ = http.Post("http://"+addr, "", strings.NewReader(zipkinSpansJSONJavaLibrary))
+	req, _ := http.NewRequestWithContext(t.Context(), http.MethodPost, "http://"+addr, strings.NewReader(zipkinSpansJSONJavaLibrary))
+	_, _ = http.DefaultClient.Do(req)
 
 	// Use the mock zipkin reporter to ensure all expected spans in a single batch. Since Flush waits for
 	// server response there is no need for further synchronization.

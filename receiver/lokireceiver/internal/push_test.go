@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"compress/flate"
 	"compress/gzip"
+	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -111,7 +112,7 @@ func TestParseRequest_ProtobufContentType(t *testing.T) {
 
 // Helper functions
 func createTestRequest(body, contentType, contentEncoding string) *http.Request {
-	req, _ := http.NewRequest(http.MethodPost, "/test", bytes.NewReader([]byte(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "/test", bytes.NewReader([]byte(body)))
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}

@@ -668,7 +668,7 @@ func Test_sfxReceiver_TLS(t *testing.T) {
 
 	url := fmt.Sprintf("https://%s/v2/datapoint", addr)
 
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, url, bytes.NewReader(body))
 	require.NoErrorf(t, err, "should have no errors with new request: %v", err)
 	req.Header.Set("Content-Type", "application/x-protobuf")
 

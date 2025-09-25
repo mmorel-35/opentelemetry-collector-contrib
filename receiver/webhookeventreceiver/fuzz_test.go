@@ -19,7 +19,7 @@ import (
 
 func FuzzHandleReq(f *testing.F) {
 	f.Fuzz(func(t *testing.T, reqBody []byte, useGzip bool) {
-		req, err := http.NewRequest(http.MethodPost, "http://example.com", bytes.NewReader(reqBody))
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "http://example.com", bytes.NewReader(reqBody))
 		if err != nil {
 			t.Skip()
 		}

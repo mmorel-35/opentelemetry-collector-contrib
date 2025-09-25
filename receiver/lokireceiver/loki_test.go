@@ -39,7 +39,7 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/lokireceiver/internal/metadata"
 )
 
-func sendToCollector(endpoint, contentType, contentEncoding string, body []byte) error {
+func sendToCollector(ctx context.Context, endpoint, contentType, contentEncoding string, body []byte) error {
 	var buf bytes.Buffer
 
 	switch contentEncoding {
@@ -70,7 +70,7 @@ func sendToCollector(endpoint, contentType, contentEncoding string, body []byte)
 		}
 	}
 
-	req, err := http.NewRequest(http.MethodPost, endpoint, &buf)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, &buf)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func TestSendingProtobufPushRequestToHTTPEndpoint(t *testing.T) {
 			buf, err := proto.Marshal(tt.body)
 			require.NoError(t, err)
 
-			require.NoError(t, sendToCollector(collectorAddr, tt.contentType, tt.contentEncoding, buf))
+			require.NoError(t, sendToCollector(t.Context(), collectorAddr, tt.contentType, tt.contentEncoding, buf))
 			gotLogs := sink.AllLogs()
 			require.NoError(t, plogtest.CompareLogs(tt.expected, gotLogs[i], plogtest.IgnoreObservedTimestamp()))
 		})
@@ -316,7 +316,7 @@ func TestSendingPushRequestToHTTPEndpoint(t *testing.T) {
 			_, port, _ := net.SplitHostPort(addr)
 			collectorAddr := fmt.Sprintf("http://localhost:%s/loki/api/v1/push", port)
 
-			require.NoError(t, sendToCollector(collectorAddr, tt.contentType, tt.contentEncoding, tt.body), "sending logs to http endpoint shouldn't have been failed")
+			require.NoError(t, sendToCollector(t.Context(), collectorAddr, tt.contentType, tt.contentEncoding, tt.body), "sending logs to http endpoint shouldn't have been failed")
 			gotLogs := sink.AllLogs()
 			require.NoError(t, plogtest.CompareLogs(tt.expected, gotLogs[0], plogtest.IgnoreObservedTimestamp()))
 			sink.Reset()
@@ -447,7 +447,7 @@ func TestExpectedStatus(t *testing.T) {
 
 			_, port, _ := net.SplitHostPort(httpAddr)
 			collectorAddr := fmt.Sprintf("http://localhost:%s/loki/api/v1/push", port)
-			require.EqualError(t, sendToCollector(collectorAddr, "application/json", "", []byte(`{"streams": [{"stream": {"foo": "bar"},"values": [[ "1676888496000000000", "logline 1" ]]}]}`)), tt.expectedHTTPError)
+			require.EqualError(t, sendToCollector(t.Context(), collectorAddr, "application/json", "", []byte(`{"streams": [{"stream": {"foo": "bar"},"values": [[ "1676888496000000000", "logline 1" ]]}]}`)), tt.expectedHTTPError)
 		})
 	}
 }

@@ -1579,11 +1579,10 @@ func TestTargetInfoWithMultipleRequests(t *testing.T) {
 				err := pBuf.Marshal(req)
 				assert.NoError(t, err)
 
-				resp, err := http.Post(
-					ts.URL,
-					fmt.Sprintf("application/x-protobuf;proto=%s", promconfig.RemoteWriteProtoMsgV2),
-					bytes.NewBuffer(pBuf.Bytes()),
-				)
+				req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, ts.URL, bytes.NewBuffer(pBuf.Bytes()))
+				assert.NoError(t, err)
+				req.Header.Set("Content-Type", fmt.Sprintf("application/x-protobuf;proto=%s", promconfig.RemoteWriteProtoMsgV2))
+				resp, err := http.DefaultClient.Do(req)
 				assert.NoError(t, err)
 				defer resp.Body.Close()
 
@@ -1775,11 +1774,10 @@ func TestLRUCacheResourceMetrics(t *testing.T) {
 		err := pBuf.Marshal(req)
 		assert.NoError(t, err)
 
-		resp, err := http.Post(
-			ts.URL,
-			fmt.Sprintf("application/x-protobuf;proto=%s", promconfig.RemoteWriteProtoMsgV2),
-			bytes.NewBuffer(pBuf.Bytes()),
-		)
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, ts.URL, bytes.NewBuffer(pBuf.Bytes()))
+		assert.NoError(t, err)
+		req.Header.Set("Content-Type", fmt.Sprintf("application/x-protobuf;proto=%s", promconfig.RemoteWriteProtoMsgV2))
+		resp, err := http.DefaultClient.Do(req)
 		assert.NoError(t, err)
 
 		body, err := io.ReadAll(resp.Body)

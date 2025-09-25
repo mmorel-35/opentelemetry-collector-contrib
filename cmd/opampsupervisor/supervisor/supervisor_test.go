@@ -2125,12 +2125,16 @@ func TestSupervisor_HealthCheckServer(t *testing.T) {
 	addr := fmt.Sprintf("localhost:%d", s.config.HealthCheck.Port())
 	require.NotEmpty(t, addr)
 
-	sendHealthCheckRequest := func() (*http.Response, error) {
-		return http.Get(fmt.Sprintf("http://%s/health", addr))
+	sendHealthCheckRequest := func(t *testing.T) (*http.Response, error) {
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://%s/health", addr), http.NoBody)
+		if err != nil {
+			return nil, err
+		}
+		return http.DefaultClient.Do(req)
 	}
 
 	t.Run("Health check server startup", func(t *testing.T) {
-		resp, respErr := sendHealthCheckRequest()
+		resp, respErr := sendHealthCheckRequest(t)
 		require.NoError(t, respErr)
 		defer resp.Body.Close()
 		body, bodyErr := io.ReadAll(resp.Body)
@@ -2142,7 +2146,7 @@ func TestSupervisor_HealthCheckServer(t *testing.T) {
 		s.cfgState.Store(healthyConfig)
 		s.persistentState = &persistentState{InstanceID: testUUID}
 
-		resp, respErr := sendHealthCheckRequest()
+		resp, respErr := sendHealthCheckRequest(t)
 		require.NoError(t, respErr)
 		defer resp.Body.Close()
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -2155,7 +2159,7 @@ func TestSupervisor_HealthCheckServer(t *testing.T) {
 		})
 		s.persistentState = nil
 
-		resp, respErr := sendHealthCheckRequest()
+		resp, respErr := sendHealthCheckRequest(t)
 		require.NoError(t, respErr)
 		defer resp.Body.Close()
 		assert.Equal(t, http.StatusServiceUnavailable, resp.StatusCode)
@@ -2168,7 +2172,7 @@ func TestSupervisor_HealthCheckServer(t *testing.T) {
 		})
 		s.cfgState = &atomic.Value{}
 
-		resp, respErr := sendHealthCheckRequest()
+		resp, respErr := sendHealthCheckRequest(t)
 		require.NoError(t, respErr)
 		defer resp.Body.Close()
 		assert.Equal(t, http.StatusServiceUnavailable, resp.StatusCode)
@@ -2181,7 +2185,7 @@ func TestSupervisor_HealthCheckServer(t *testing.T) {
 		})
 		s.cfgState = &atomic.Value{}
 
-		resp, respErr := sendHealthCheckRequest()
+		resp, respErr := sendHealthCheckRequest(t)
 		require.NoError(t, respErr)
 		defer resp.Body.Close()
 		assert.Equal(t, http.StatusServiceUnavailable, resp.StatusCode)
@@ -2207,14 +2211,14 @@ func TestSupervisor_HealthCheckServer(t *testing.T) {
 	})
 
 	t.Run("Health check server shutdown is handled gracefully in Supervisor.Shutdown", func(t *testing.T) {
-		resp, err := sendHealthCheckRequest()
+		resp, err := sendHealthCheckRequest(t)
 		require.NoError(t, err)
 		resp.Body.Close()
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		s.Shutdown()
 
-		_, err = sendHealthCheckRequest()
+		_, err = sendHealthCheckRequest(t)
 		assert.Error(t, err)
 	})
 }

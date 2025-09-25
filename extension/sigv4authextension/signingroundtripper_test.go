@@ -79,7 +79,7 @@ func TestRoundTrip(t *testing.T) {
 			assert.NoError(t, err)
 
 			newBody := strings.NewReader(body)
-			req, err := http.NewRequest(http.MethodPost, serverURL.String(), newBody)
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, serverURL.String(), newBody)
 			assert.NoError(t, err)
 
 			res, err := rt.RoundTrip(req)
@@ -95,25 +95,25 @@ func TestRoundTrip(t *testing.T) {
 }
 
 func TestInferServiceAndRegion(t *testing.T) {
-	req1, err := http.NewRequest(http.MethodGet, "https://example.com", http.NoBody)
+	req1, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://example.com", http.NoBody)
 	assert.NoError(t, err)
 
-	req2, err := http.NewRequest(http.MethodGet, "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-XXX/api/v1/remote_write", http.NoBody)
+	req2, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-XXX/api/v1/remote_write", http.NoBody)
 	assert.NoError(t, err)
 
-	req3, err := http.NewRequest(http.MethodGet, "https://search-my-domain.us-east-1.es.amazonaws.com/_search?q=house", http.NoBody)
+	req3, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://search-my-domain.us-east-1.es.amazonaws.com/_search?q=house", http.NoBody)
 	assert.NoError(t, err)
 
-	req4, err := http.NewRequest(http.MethodGet, "https://example.com", http.NoBody)
+	req4, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://example.com", http.NoBody)
 	assert.NoError(t, err)
 
-	req5, err := http.NewRequest(http.MethodGet, "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-XXX/api/v1/remote_write", http.NoBody)
+	req5, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-XXX/api/v1/remote_write", http.NoBody)
 	assert.NoError(t, err)
 
-	req6, err := http.NewRequest(http.MethodGet, "https://logs.us-east-1.amazonaws.com/v1/logs", http.NoBody)
+	req6, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://logs.us-east-1.amazonaws.com/v1/logs", http.NoBody)
 	assert.NoError(t, err)
 
-	req7, err := http.NewRequest(http.MethodGet, "https://xray.us-east-1.amazonaws.com/v1/traces", http.NoBody)
+	req7, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://xray.us-east-1.amazonaws.com/v1/traces", http.NoBody)
 	assert.NoError(t, err)
 
 	tests := []struct {
@@ -192,13 +192,13 @@ func TestInferServiceAndRegion(t *testing.T) {
 }
 
 func TestHashPayload(t *testing.T) {
-	req1, err := http.NewRequest(http.MethodGet, "https://example.com", http.NoBody)
+	req1, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://example.com", http.NoBody)
 	assert.NoError(t, err)
 
-	req2, err := http.NewRequest(http.MethodGet, "https://example.com", bytes.NewReader([]byte("This is a test.")))
+	req2, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://example.com", bytes.NewReader([]byte("This is a test.")))
 	assert.NoError(t, err)
 
-	req3, err := http.NewRequest(http.MethodGet, "https://example.com", http.NoBody)
+	req3, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://example.com", http.NoBody)
 	assert.NoError(t, err)
 	req3.GetBody = func() (io.ReadCloser, error) { return nil, errors.New("this will always fail") }
 

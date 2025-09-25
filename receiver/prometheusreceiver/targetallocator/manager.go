@@ -228,7 +228,11 @@ func getScrapeConfigsResponse(httpClient *http.Client, baseURL string) (map[stri
 		return nil, err
 	}
 
-	resp, err := httpClient.Get(scrapeConfigsURL)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, scrapeConfigsURL, http.NoBody)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

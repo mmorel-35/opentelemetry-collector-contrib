@@ -83,7 +83,7 @@ func TestReceiverTLSIntegration(t *testing.T) {
 			payload, err := os.ReadFile(filepath.Join("testdata", "sample-payloads", fmt.Sprintf("%s.txt", payloadName)))
 			require.NoError(t, err)
 
-			req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("https://localhost:%s", testPort), bytes.NewBuffer(payload))
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, fmt.Sprintf("https://localhost:%s", testPort), bytes.NewBuffer(payload))
 			require.NoError(t, err)
 
 			client, err := clientWithCert(filepath.Join("testdata", "cert", "ca.crt"))

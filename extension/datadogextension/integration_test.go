@@ -287,7 +287,7 @@ func TestFullOtelCollectorPayloadIntegration(t *testing.T) {
 	// Step 5: Simulate sending payload (in a real scenario, this would use serializer.SendEvents or similar)
 	// For this test, we simulate the HTTP request that would be made
 	client := &http.Client{Timeout: 5 * time.Second}
-	req, err := http.NewRequest(http.MethodPost, backendURL+"/api/v1/otel_collector", http.NoBody)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, backendURL+"/api/v1/otel_collector", http.NoBody)
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json")

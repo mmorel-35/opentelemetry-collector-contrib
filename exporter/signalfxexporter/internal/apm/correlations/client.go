@@ -279,15 +279,15 @@ func (cc *Client) makeRequest(r *request) {
 
 	switch r.operation {
 	case http.MethodGet:
-		req, err = http.NewRequest(r.operation, endpoint, http.NoBody)
+		req, err = http.NewRequestWithContext(context.Background(), r.operation, endpoint, http.NoBody)
 	case http.MethodPut:
 		// TODO: pool the reader
 		endpoint = fmt.Sprintf("%s/%s", endpoint, r.Type)
-		req, err = http.NewRequest(r.operation, endpoint, strings.NewReader(r.Value))
+		req, err = http.NewRequestWithContext(context.Background(), r.operation, endpoint, strings.NewReader(r.Value))
 		req.Header.Add("Content-Type", "text/plain")
 	case http.MethodDelete:
 		endpoint = fmt.Sprintf("%s/%s/%s", endpoint, r.Type, url.PathEscape(r.Value))
-		req, err = http.NewRequest(r.operation, endpoint, http.NoBody)
+		req, err = http.NewRequestWithContext(context.Background(), r.operation, endpoint, http.NoBody)
 	default:
 		err = errors.New("unknown operation")
 	}

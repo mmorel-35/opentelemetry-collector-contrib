@@ -30,7 +30,9 @@ func Test_SimpleHealthCheck(t *testing.T) {
 	t.Cleanup(func() {
 		require.NoError(t, e.Shutdown(t.Context()))
 	})
-	resp, err := http.DefaultClient.Get(fmt.Sprintf("http://localhost:%d/", port))
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://localhost:%d/", port), http.NoBody)
+	require.NoError(t, err)
+	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	assert.Equal(t, "503 Service Unavailable", resp.Status)
 	var buf bytes.Buffer
@@ -39,7 +41,9 @@ func Test_SimpleHealthCheck(t *testing.T) {
 	assert.JSONEq(t, `{"status":"Server not available","upSince":"0001-01-01T00:00:00Z","uptime":""}`, buf.String())
 	err = e.(*healthCheckExtension).Ready()
 	require.NoError(t, err)
-	resp, err = http.DefaultClient.Get(fmt.Sprintf("http://localhost:%d/", port))
+	req2, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://localhost:%d/", port), http.NoBody)
+	require.NoError(t, err)
+	resp, err = http.DefaultClient.Do(req2)
 	require.NoError(t, err)
 	assert.Equal(t, "200 OK", resp.Status)
 	buf.Reset()

@@ -165,7 +165,7 @@ func TestRefresh(t *testing.T) {
 			observedZapCore, observedLogs := observer.New(zap.InfoLevel)
 			settings := newNopSettings()
 			settings.Logger = zap.New(observedZapCore)
-			mockRequest, err := http.NewRequest(http.MethodGet, "http://mock", http.NoBody)
+			mockRequest, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://mock", http.NoBody)
 			require.NoError(t, err)
 			settingsExtension := &solarwindsapmSettingsExtension{
 				config: &Config{

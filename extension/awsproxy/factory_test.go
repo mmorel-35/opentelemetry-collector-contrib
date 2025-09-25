@@ -77,10 +77,12 @@ func TestFactory_Create(t *testing.T) {
 
 	var resp *http.Response
 	require.Eventually(t, func() bool {
-		resp, err = http.Post(
-			"http://"+address+"/GetSamplingRules",
-			"application/json",
-			strings.NewReader(`{"NextToken": null}`))
+		req, err1 := http.NewRequestWithContext(t.Context(), http.MethodPost, "http://"+address+"/GetSamplingRules", strings.NewReader(`{"NextToken": null}`))
+		if err1 != nil {
+			return false
+		}
+		req.Header.Set("Content-Type", "application/json")
+		resp, err = http.DefaultClient.Do(req)
 		return err == nil
 	}, 3*time.Second, 10*time.Millisecond)
 

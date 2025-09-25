@@ -4,6 +4,7 @@
 package prometheusreceiver
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -76,7 +77,7 @@ func TestPrometheusAPIServer(t *testing.T) {
 		require.NoError(t, receiver.Start(ctx, componenttest.NewNopHost()))
 		t.Cleanup(func() {
 			require.NoError(t, receiver.Shutdown(ctx))
-			response, err := callAPI(endpoint, "/scrape_pools")
+			response, err := callAPI(t.Context(), endpoint, "/scrape_pools")
 			require.Error(t, err)
 			require.Nil(t, response)
 		})
@@ -96,8 +97,12 @@ func TestPrometheusAPIServer(t *testing.T) {
 	}
 }
 
-func callAPI(endpoint, path string) (*apiResponse, error) {
-	resp, err := http.Get(fmt.Sprintf("http://%s/api/v1%s", endpoint, path))
+func callAPI(ctx context.Context, endpoint, path string) (*apiResponse, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/api/v1%s", endpoint, path), http.NoBody)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +122,7 @@ func callAPI(endpoint, path string) (*apiResponse, error) {
 }
 
 func testScrapePools(t *testing.T, endpoint string) {
-	scrapePoolsResponse, err := callAPI(endpoint, "/scrape_pools")
+	scrapePoolsResponse, err := callAPI(t.Context(), endpoint, "/scrape_pools")
 	assert.NoError(t, err)
 	var scrapePools scrapePoolsData
 	err = json.Unmarshal([]byte(scrapePoolsResponse.Data), &scrapePools)
@@ -128,7 +133,7 @@ func testScrapePools(t *testing.T, endpoint string) {
 }
 
 func testTargets(t *testing.T, endpoint string) {
-	targetsResponse, err := callAPI(endpoint, "/targets")
+	targetsResponse, err := callAPI(t.Context(), endpoint, "/targets")
 	assert.NoError(t, err)
 	var targets v1.TargetsResult
 	err = json.Unmarshal([]byte(targetsResponse.Data), &targets)
@@ -144,7 +149,7 @@ func testTargets(t *testing.T, endpoint string) {
 }
 
 func testTargetsMetadata(t *testing.T, endpoint string) {
-	targetsMetadataResponse, err := callAPI(endpoint, "/targets/metadata?match_target={job=\"target1\"}")
+	targetsMetadataResponse, err := callAPI(t.Context(), endpoint, "/targets/metadata?match_target={job=\"target1\"}")
 	assert.NoError(t, err)
 	assert.NotNil(t, targetsMetadataResponse)
 
@@ -161,7 +166,7 @@ func testTargetsMetadata(t *testing.T, endpoint string) {
 }
 
 func testPrometheusConfig(t *testing.T, endpoint string, receiver *pReceiver) {
-	prometheusConfigResponse, err := callAPI(endpoint, "/status/config")
+	prometheusConfigResponse, err := callAPI(t.Context(), endpoint, "/status/config")
 	assert.NoError(t, err)
 	var prometheusConfigResult v1.ConfigResult
 	err = json.Unmarshal([]byte(prometheusConfigResponse.Data), &prometheusConfigResult)
@@ -187,7 +192,7 @@ func testPrometheusConfig(t *testing.T, endpoint string, receiver *pReceiver) {
 }
 
 func testRuntimeInfo(t *testing.T, endpoint string) {
-	prometheusConfigResponse, err := callAPI(endpoint, "/status/runtimeinfo")
+	prometheusConfigResponse, err := callAPI(t.Context(), endpoint, "/status/runtimeinfo")
 	assert.NoError(t, err)
 	var runtimeInfo api_v1.RuntimeInfo
 	err = json.Unmarshal([]byte(prometheusConfigResponse.Data), &runtimeInfo)
@@ -199,7 +204,7 @@ func testRuntimeInfo(t *testing.T, endpoint string) {
 }
 
 func testBuildInfo(t *testing.T, endpoint string) {
-	prometheusConfigResponse, err := callAPI(endpoint, "/status/buildinfo")
+	prometheusConfigResponse, err := callAPI(t.Context(), endpoint, "/status/buildinfo")
 	assert.NoError(t, err)
 
 	var prometheusVersion api_v1.PrometheusVersion
@@ -210,7 +215,7 @@ func testBuildInfo(t *testing.T, endpoint string) {
 }
 
 func testFlags(t *testing.T, endpoint string) {
-	prometheusConfigResponse, err := callAPI(endpoint, "/status/flags")
+	prometheusConfigResponse, err := callAPI(t.Context(), endpoint, "/status/flags")
 	assert.NoError(t, err)
 	var flagsMap map[string]string
 	err = json.Unmarshal([]byte(prometheusConfigResponse.Data), &flagsMap)
@@ -219,7 +224,9 @@ func testFlags(t *testing.T, endpoint string) {
 }
 
 func testMetricsEndpoint(t *testing.T, endpoint string) {
-	resp, err := http.Get(fmt.Sprintf("http://%s/metrics", endpoint))
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("http://%s/metrics", endpoint), http.NoBody)
+	assert.NoError(t, err)
+	resp, err := http.DefaultClient.Do(req)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	defer resp.Body.Close()

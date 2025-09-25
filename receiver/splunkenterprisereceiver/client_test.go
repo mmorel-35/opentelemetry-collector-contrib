@@ -90,7 +90,7 @@ func TestClientCreateRequest(t *testing.T) {
 		desc     string
 		sr       *searchResponse
 		client   *splunkEntClient
-		expected *http.Request
+		expected func(t *testing.T) *http.Request
 	}{
 		{
 			desc: "First req, no jobid",
@@ -98,15 +98,15 @@ func TestClientCreateRequest(t *testing.T) {
 				search: "example search",
 			},
 			client: client,
-			expected: func() *http.Request {
+			expected: func(t *testing.T) *http.Request {
 				method := http.MethodPost
 				path := "/services/search/jobs/"
 				testEndpoint, _ := url.Parse("https://localhost:8089")
 				url, _ := url.JoinPath(testEndpoint.String(), path)
 				data := strings.NewReader("example search")
-				req, _ := http.NewRequest(method, url, data)
+				req, _ := http.NewRequestWithContext(t.Context(), method, url, data)
 				return req
-			}(),
+			},
 		},
 		{
 			desc: "Second req, jobID detected",
@@ -115,14 +115,14 @@ func TestClientCreateRequest(t *testing.T) {
 				Jobid:  &testJobID,
 			},
 			client: client,
-			expected: func() *http.Request {
+			expected: func(t *testing.T) *http.Request {
 				method := http.MethodGet
 				path := fmt.Sprintf("/services/search/jobs/%s/results", testJobID)
 				testEndpoint, _ := url.Parse("https://localhost:8089")
 				url, _ := url.JoinPath(testEndpoint.String(), path)
-				req, _ := http.NewRequest(method, url, http.NoBody)
+				req, _ := http.NewRequestWithContext(t.Context(), method, url, http.NoBody)
 				return req
-			}(),
+			},
 		},
 	}
 
@@ -130,11 +130,12 @@ func TestClientCreateRequest(t *testing.T) {
 		t.Run(test.desc, func(t *testing.T) {
 			req, err := test.client.createRequest(typeIdx, test.sr)
 			require.NoError(t, err)
+			expected := test.expected(t)
 			// have to test specific parts since individual fields are pointers
-			require.Equal(t, test.expected.URL, req.URL)
-			require.Equal(t, test.expected.Method, req.Method)
-			require.Equal(t, test.expected.Header, req.Header)
-			require.Equal(t, test.expected.Body, req.Body)
+			require.Equal(t, expected.URL, req.URL)
+			require.Equal(t, expected.Method, req.Method)
+			require.Equal(t, expected.Header, req.Header)
+			require.Equal(t, expected.Body, req.Body)
 		})
 	}
 }
@@ -168,7 +169,7 @@ func TestAPIRequestCreate(t *testing.T) {
 
 	// build the expected request
 	expectedURL := client.clients[typeIdx].endpoint.String() + "/test/endpoint"
-	expected, _ := http.NewRequest(http.MethodGet, expectedURL, http.NoBody)
+	expected, _ := http.NewRequestWithContext(t.Context(), http.MethodGet, expectedURL, http.NoBody)
 
 	require.Equal(t, expected.URL, req.URL)
 	require.Equal(t, expected.Method, req.Method)

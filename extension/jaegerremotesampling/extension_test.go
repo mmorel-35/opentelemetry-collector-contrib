@@ -118,7 +118,9 @@ func TestRemote(t *testing.T) {
 
 			// make test case defined number of calls
 			for i := 0; i < tc.performedClientCallCount; i++ {
-				resp, err := http.Get("http://127.0.0.1:5778/sampling?service=foo")
+				req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://127.0.0.1:5778/sampling?service=foo", http.NoBody)
+				assert.NoError(t, err)
+				resp, err := http.DefaultClient.Do(req)
 				assert.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
 				assert.NoError(t, resp.Body.Close())

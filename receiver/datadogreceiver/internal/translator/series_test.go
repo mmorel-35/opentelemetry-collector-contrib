@@ -77,7 +77,7 @@ func TestHandleMetricsPayloadV2(t *testing.T) {
 			pb, err := tt.metricsPayload.Marshal()
 			require.NoError(t, err)
 
-			req, err := http.NewRequest(http.MethodPost, "/api/v2/series", io.NopCloser(bytes.NewReader(pb)))
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "/api/v2/series", io.NopCloser(bytes.NewReader(pb)))
 			require.NoError(t, err)
 			mt := createMetricsTranslator()
 			series, err := mt.HandleSeriesV2Payload(req)

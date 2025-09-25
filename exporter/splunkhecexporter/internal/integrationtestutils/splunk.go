@@ -4,6 +4,7 @@
 package integrationtestutils // import "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/splunkhecexporter/internal/integrationtestutils"
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -47,7 +48,7 @@ func getSplunkSearchResults(user, password, baseURL, jobID string) []any {
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 	eventURL := fmt.Sprintf("%s/services/search/jobs/%s/events?output_mode=json", baseURL, jobID)
 	logger.Println("URL: " + eventURL)
-	reqEvents, err := http.NewRequest(http.MethodGet, eventURL, http.NoBody)
+	reqEvents, err := http.NewRequestWithContext(context.Background(), http.MethodGet, eventURL, http.NoBody)
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +90,7 @@ func checkSearchJobStatusCode(user, password, baseURL, jobID string) any {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
-	checkReqEvents, err := http.NewRequest(http.MethodGet, checkEventURL, http.NoBody)
+	checkReqEvents, err := http.NewRequestWithContext(context.Background(), http.MethodGet, checkEventURL, http.NoBody)
 	if err != nil {
 		panic(err)
 	}
@@ -130,7 +131,7 @@ func postSearchRequest(user, password, baseURL, searchQuery, startTime, endTime 
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
-	req, err := http.NewRequest(http.MethodPost, searchURL, strings.NewReader(data.Encode()))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, searchURL, strings.NewReader(data.Encode()))
 	if err != nil {
 		logger.Printf("Error while preparing POST request")
 		panic(err)
@@ -173,7 +174,7 @@ func CheckMetricsFromSplunk(index, metricName string) []any {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr, Timeout: 10 * time.Second}
-	req, err := http.NewRequest(http.MethodGet, apiURL, http.NoBody)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, apiURL, http.NoBody)
 	if err != nil {
 		panic(err)
 	}
@@ -210,7 +211,7 @@ func CreateAnIndexInSplunk(index, indexType string) {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
-	req, err := http.NewRequest(http.MethodPost, indexURL, strings.NewReader(data.Encode()))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, indexURL, strings.NewReader(data.Encode()))
 	if err != nil {
 		logger.Printf("Error while preparing POST request")
 		panic(err)

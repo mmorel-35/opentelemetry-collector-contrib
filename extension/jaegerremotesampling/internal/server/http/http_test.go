@@ -72,8 +72,10 @@ func TestEndpointsAreWired(t *testing.T) {
 				srv.Close()
 			}()
 
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, fmt.Sprintf("%s%s?service=foo", srv.URL, tC.endpoint), http.NoBody)
+			require.NoError(t, err)
 			// test
-			resp, err := srv.Client().Get(fmt.Sprintf("%s%s?service=foo", srv.URL, tC.endpoint))
+			resp, err := srv.Client().Do(req)
 			require.NoError(t, err)
 
 			// verify
